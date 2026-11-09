@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesmen Ulangan Online - SKI Kelas XI Semester 1</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        emeraldCustom: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Mencegah seleksi teks secara total untuk keamanan */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #059669;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #047857;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col no-select" oncontextmenu="return false;" ondragstart="return false;" onselectstart="return false;">
+
+    <!-- TOP HEADER BAR -->
+    <header class="bg-emeraldCustom-900 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-600 p-2 rounded-xl text-white shadow-md">
+                    <i class="fa-solid fa-mosque text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base md:text-lg leading-tight tracking-wide">PORTAL ASESMEN ULANGAN SKI</h1>
+                    <p class="text-xs text-emerald-300">Sejarah Kebudayaan Islam Kelas XI Semester 1</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="btnOpenTeacherModal" onclick="openTeacherModal()" class="bg-emerald-800 hover:bg-emerald-700 border border-emerald-600 text-white text-xs px-3 py-2 rounded-xl font-medium transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-user-shield text-amber-400"></i> Dasbor Guru
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECURITY BLACK SCREEN OVERLAY (SAAT PELANGGARAN TERDETEKSI) -->
+    <div id="blackScreenOverlay" class="hidden fixed inset-0 bg-black text-white z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <div class="max-w-lg bg-slate-900 border-2 border-red-600 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-red-600/20 rounded-full blur-xl"></div>
+            <i class="fa-solid fa-triangle-exclamation text-7xl text-red-500 animate-bounce mb-4"></i>
+            <h2 class="text-2xl md:text-3xl font-black text-red-500 mb-2 tracking-wide uppercase">Pelanggaran Kecurangan Terdeteksi!</h2>
+            <p id="blackScreenReason" class="text-slate-300 text-sm mb-4 font-medium">Aktivitas terlarang terdeteksi oleh sistem keamanan ujian.</p>
+            
+            <div class="bg-red-950/70 border border-red-800 text-red-300 text-xs p-4 rounded-2xl mb-6 text-left space-y-2">
+                <strong class="text-red-400 font-bold block border-b border-red-900 pb-1">Sistem Keamanan Mencatat:</strong>
+                <ul class="list-disc list-inside space-y-1 text-slate-300">
+                    <li>Pindah Tab / Berpindah Aplikasi / Minimasi Browser</li>
+                    <li>Percobaan Screenshot / Tangkap Layar (PrintScreen / Shortcut)</li>
+                    <li>Membagi Layar (Split Screen) atau Memperkecil Ukuran Window</li>
+                    <li>Percobaan Klik Kanan / Salin-Tempel (Copy-Paste)</li>
+                </ul>
+            </div>
+            <p class="text-xs text-slate-400 mb-6">Ujian terkunci. Silakan hubungi Pengawas Ujian untuk memasukkan kode reset pembukaan kunci.</p>
+            
+            <button onclick="attemptResetViolations()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-red-600/40">
+                <i class="fa-solid fa-key"></i> Masukkan Kode Buka Kunci (Guru)
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- 1. PORTAL AWAL (FORM SISWA & 10 PERATURAN) -->
+        <section id="portalSection" class="max-w-4xl mx-auto space-y-6">
+            <!-- Banner Informatif -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-gradient-to-r from-emeraldCustom-900 via-emeraldCustom-800 to-emeraldCustom-600 p-6 md:p-8 text-white relative">
+                    <span class="bg-emerald-500/30 text-emerald-100 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-400/30">Asesmen Semester Ganjil</span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold mt-3 leading-tight">Evaluasi Pembelajaran Sejarah Kebudayaan Islam</h2>
+                    <p class="text-emerald-100 text-xs md:text-sm mt-2 max-w-2xl leading-relaxed">
+                        Materi: Perkembangan Peradaban Islam Daulah Abbasiyah (Kejayaan, Tokoh/Ilmuwan, Pusat Peradaban, Keruntuhan) serta Daulah Utsmaniyah, Safawi, dan Mughal.
+                    </p>
+                </div>
+                
+                <form id="studentForm" onsubmit="event.preventDefault();" class="p-6 md:p-8 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2">Identitas Peserta Ujian</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Siswa *</label>
+                            <input type="text" id="studentName" required placeholder="Contoh: Muhammad Ali" class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-slate-50 focus:bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Kelas / Jurusan *</label>
+                            <select id="studentClass" required class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-slate-50 focus:bg-white">
+                                <option value="">-- Pilih Kelas --</option>
+                                <option value="XI IPA 1">XI IPA 1</option>
+                                <option value="XI IPA 2">XI IPA 2</option>
+                                <option value="XI IPS 1">XI IPS 1</option>
+                                <option value="XI IPS 2">XI IPS 2</option>
+                                <option value="XI Keagamaan">XI Keagamaan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Nomor Peserta Ujian *</label>
+                            <input type="text" id="studentExamNo" required placeholder="Contoh: 11-SKI-001" class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-slate-50 focus:bg-white">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 10 PERATURAN ULANGAN KETAT -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-6 text-emeraldCustom-900 border-b pb-4">
+                    <i class="fa-solid fa-shield-halved text-2xl text-emerald-600"></i>
+                    <div>
+                        <h3 class="text-lg font-extrabold">10 Tata Tertib & Peraturan Keamanan Ujian</h3>
+                        <p class="text-xs text-slate-500">Bacalah seluruh tata tertib sebelum memulai ulangan.</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm text-slate-700">
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">1</span>
+                        <span>Dilarang berpindah tab, berpindah browser, atau membuka aplikasi lain selama ujian.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">2</span>
+                        <span>Dilarang melakukan **Screenshot / Tangkap Layar** atau *PrintScreen* tombol apapun.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">3</span>
+                        <span>Dilarang membagi layar (*Split Screen*), meminimize jendela, atau mengubah ukuran window.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">4</span>
+                        <span>Fitur **Salin/Tempel (Copy/Paste)** dan Klik Kanan dinonaktifkan secara total.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">5</span>
+                        <span>Pelanggaran sistem akan langsung mengunci ujian dan memicu **LAYAR HITAM PENUH**.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">6</span>
+                        <span>Ujian dikerjakan secara mandiri tanpa bantuan catatan atau pihak luar.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">7</span>
+                        <span>Waktu pengerjaan adalah **90 Menit** untuk menyelesaikan total **50 Soal Pilihan Ganda (A-E)**.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">8</span>
+                        <span>Ujian wajib dilaksanakan dalam mode **Layar Penuh (Full Screen)**.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">9</span>
+                        <span>Jika terjadi masalah kendala perangkat, segera laporkan ke Pengawas Ujian secara langsung.</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-xl">10</span>
+                        <span>Nilai akan dihitung secara otomatis oleh sistem setelah menekan tombol **Kirim Ujian**.</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-6 border-t flex flex-col md:flex-row items-center justify-between gap-4">
+                    <label class="flex items-center space-x-3 text-xs md:text-sm text-slate-700 cursor-pointer font-medium">
+                        <input type="checkbox" id="agreeRules" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 accent-emerald-600">
+                        <span>Saya bersedia mematuhi seluruh tata tertib dan peraturan ujian di atas.</span>
+                    </label>
+                    <button type="button" onclick="validateAndStart()" class="w-full md:w-auto px-8 py-3.5 bg-emeraldCustom-600 hover:bg-emeraldCustom-700 text-white font-bold text-sm rounded-2xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30">
+                        <i class="fa-solid fa-play"></i> Mulai Ujian Sekarang
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. LEMBAR UJIAN SISWA -->
+        <section id="examSection" class="hidden space-y-4">
+            <!-- Header Status Ujian & Timer -->
+            <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <div id="dispStudentInfo" class="font-bold text-slate-800 text-sm md:text-base">Ahmad Dahlan (XI IPA 1)</div>
+                        <div id="dispExamNo" class="text-xs text-slate-500 font-mono">No. Ujian: 11-SKI-001</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Indicator Ragu / Pelanggaran -->
+                    <div class="bg-red-50 border border-red-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Pelanggaran: <strong id="violationCountDisplay" class="font-mono text-sm">0</strong></span>
+                    </div>
+
+                    <!-- Timer -->
+                    <div class="bg-amber-50 border border-amber-200 px-4 py-1.5 rounded-xl flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-amber-600 animate-pulse"></i>
+                        <span class="text-xs font-bold text-amber-800">Sisa Waktu:</span>
+                        <span id="timerDisplay" class="font-mono font-bold text-amber-700 text-base md:text-lg">90:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Area Soal & Peta Navigasi -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Lembar Soal Utama (3 Kolom) -->
+                <div class="lg:col-span-3 space-y-4">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+                        <div class="flex justify-between items-center border-b pb-4 mb-6">
+                            <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider bg-emerald-100/60 px-3.5 py-1.5 rounded-full border border-emerald-200">
+                                Soal Nomor <span id="currentQuestionNum" class="font-mono text-sm">1</span> Dari 50
+                            </span>
+                            <span class="text-xs text-slate-400 font-medium">Pilihan Ganda (A - E)</span>
+                        </div>
+
+                        <!-- Teks Pertanyaan -->
+                        <div id="questionText" class="text-slate-800 font-medium text-sm md:text-base leading-relaxed mb-6">
+                            Memuat soal...
+                        </div>
+
+                        <!-- Pilihan Jawaban A, B, C, D, E -->
+                        <div id="optionsContainer" class="space-y-3">
+                            <!-- Injected by JS -->
+                        </div>
+
+                        <!-- Controls Navigasi Soal -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 mt-8 pt-6 border-t">
+                            <button id="btnPrev" onclick="navigateQuestion(-1)" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs md:text-sm font-bold transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                            </button>
+
+                            <button id="btnDoubt" onclick="toggleDoubt()" class="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 rounded-xl text-xs md:text-sm font-bold transition flex items-center gap-2">
+                                <i class="fa-solid fa-bookmark"></i> <span id="doubtBtnText">Ragu-Ragu</span>
+                            </button>
+
+                            <button id="btnNext" onclick="navigateQuestion(1)" class="px-5 py-2.5 bg-emeraldCustom-600 hover:bg-emeraldCustom-700 text-white rounded-xl text-xs md:text-sm font-bold transition flex items-center gap-2">
+                                Selanjutnya <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Peta Nomor Soal (1 Kolom) -->
+                <div class="space-y-4">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5">
+                        <h4 class="font-bold text-slate-700 text-sm mb-3 flex items-center justify-between">
+                            <span>Peta Nomor Soal</span>
+                            <span class="text-xs text-slate-500 font-medium" id="answeredCountText">0/50</span>
+                        </h4>
+                        
+                        <div id="questionGrid" class="grid grid-cols-5 gap-2 text-center text-xs">
+                            <!-- Grid 1-50 Injected JS -->
+                        </div>
+
+                        <!-- Keterangan Warna -->
+                        <div class="mt-4 pt-4 border-t space-y-2 text-xs">
+                            <div class="flex items-center gap-2 text-slate-600">
+                                <div class="w-3.5 h-3.5 bg-emerald-600 rounded-md"></div>
+                                <span>Sudah Dijawab</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-600">
+                                <div class="w-3.5 h-3.5 bg-amber-400 rounded-md"></div>
+                                <span>Ragu-Ragu</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-600">
+                                <div class="w-3.5 h-3.5 bg-slate-200 rounded-md"></div>
+                                <span>Belum Dijawab</span>
+                            </div>
+                        </div>
+
+                        <button onclick="confirmSubmitExam()" class="w-full mt-6 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-2xl transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Kirim Jawaban Ujian
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. HASIL AKHIR SISWA -->
+        <section id="resultSection" class="hidden max-w-2xl mx-auto space-y-6 text-center">
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-200">
+                <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-4xl mb-4 shadow-inner">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800">Ujian Telah Selesai!</h2>
+                <p class="text-slate-500 text-xs md:text-sm mt-1">Hasil ujian Anda telah tersimpan ke dalam database sistem secara otomatis.</p>
+
+                <div class="my-6 p-6 bg-slate-50 border border-slate-200 rounded-3xl">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">NILAI AKHIR ANDA</div>
+                    <div id="finalScore" class="text-6xl font-black text-emerald-600 my-2 font-mono">0</div>
+                    <div id="scoreDetail" class="text-xs font-medium text-slate-600">Jawaban Benar: 0 / 50 Soal</div>
+                </div>
+
+                <div class="text-left text-xs text-slate-600 space-y-1.5 bg-slate-100/80 p-4 rounded-2xl mb-6">
+                    <p><strong>Nama Peserta:</strong> <span id="resName">-</span></p>
+                    <p><strong>Kelas:</strong> <span id="resClass">-</span></p>
+                    <p><strong>Nomor Ujian:</strong> <span id="resExamNo">-</span></p>
+                    <p><strong>Waktu Selesai:</strong> <span id="resTime">-</span></p>
+                    <p><strong>Total Pelanggaran:</strong> <span id="resViolations" class="font-bold text-red-600">0</span> Kali</p>
+                </div>
+
+                <button onclick="location.reload()" class="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs md:text-sm font-bold transition flex items-center justify-center gap-2 mx-auto">
+                    <i class="fa-solid fa-house"></i> Kembali ke Halaman Utama
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
+        <p>&copy; 2026 Portal Asesmen Ulangan Digital - SKI Kelas XI. All Rights Reserved.</p>
+    </footer>
+
+    <!-- MODAL DASBOR GURU (ID LOGIN: AGUNG121002) -->
+    <div id="teacherModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-200">
+            <!-- Modal Header -->
+            <div class="p-5 border-b flex justify-between items-center bg-slate-900 text-white rounded-t-3xl">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-user-shield text-emerald-400 text-lg"></i>
+                    <h3 class="font-bold text-base">Dasbor Pengelola & Guru (ID: AGUNG121002)</h3>
+                </div>
+                <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-white text-xl px-2">&times;</button>
+            </div>
+
+            <!-- Login View -->
+            <div id="teacherLoginView" class="p-6 md:p-8 space-y-4 max-w-md mx-auto text-center">
+                <i class="fa-solid fa-lock text-4xl text-emerald-600 mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-base">Autentikasi Dasbor Guru</h4>
+                <p class="text-xs text-slate-500">Masukkan ID Guru untuk mengakses rekapitulasi nilai dan manajemen soal.</p>
+                <div>
+                    <input type="password" id="teacherIdInput" placeholder="Masukkan ID Guru..." class="w-full px-4 py-3 text-sm border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-center font-mono">
+                </div>
+                <button onclick="authTeacher()" class="w-full py-3 bg-emeraldCustom-600 hover:bg-emeraldCustom-700 text-white text-sm font-bold rounded-xl transition">
+                    Masuk Dasbor Guru
+                </button>
+            </div>
+
+            <!-- Admin View (Setelah Login Valid) -->
+            <div id="teacherAdminView" class="hidden p-6 md:p-8 space-y-6">
+                <!-- Navigation Tabs -->
+                <div class="flex border-b text-xs font-bold gap-2">
+                    <button onclick="switchTeacherTab('rekap')" id="tabBtnRekap" class="px-4 py-2.5 border-b-2 border-emerald-600 text-emerald-600">Rekap Nilai Siswa</button>
+                    <button onclick="switchTeacherTab('upload')" id="tabBtnUpload" class="px-4 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Tambah & Upload Soal</button>
+                    <button onclick="switchTeacherTab('settings')" id="tabBtnSettings" class="px-4 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Pengaturan Keamanan</button>
+                </div>
+
+                <!-- Tab 1: Rekap Nilai Siswa -->
+                <div id="teacherTabRekap" class="space-y-4">
+                    <div class="flex flex-wrap justify-between items-center gap-2">
+                        <h4 class="text-sm font-bold text-slate-700">Hasil Ujian Siswa (Tersimpan)</h4>
+                        <div class="flex gap-2">
+                            <button onclick="exportToCSV()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
+                                <i class="fa-solid fa-file-excel"></i> Export CSV
+                            </button>
+                            <button onclick="clearStudentResults()" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 font-bold px-3 py-2 rounded-xl transition">
+                                Hapus Semua Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border rounded-2xl">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 border-b text-slate-700 font-bold">
+                                <tr>
+                                    <th class="p-3">No</th>
+                                    <th class="p-3">Nama Siswa</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3">No Ujian</th>
+                                    <th class="p-3">Nilai</th>
+                                    <th class="p-3">Pelanggaran</th>
+                                    <th class="p-3">Waktu Selesai</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekapTableBody" class="divide-y text-slate-700">
+                                <tr>
+                                    <td colspan="7" class="p-4 text-center text-slate-400">Belum ada data ujian tersimpan.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Upload / Tambah Soal -->
+                <div id="teacherTabUpload" class="hidden space-y-4">
+                    <h4 class="text-sm font-bold text-slate-700">Ganti atau Tambah Bank Soal (Format JSON)</h4>
+                    <p class="text-xs text-slate-500">Anda dapat memperbarui 50 soal pilihan ganda secara sekaligus menggunakan format JSON.</p>
+                    <textarea id="jsonUploadInput" rows="8" class="w-full p-4 font-mono text-xs border border-slate-300 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50" placeholder='[{"q": "Soal...", "o": ["A", "B", "C", "D", "E"], "a": 0}, ...]'></textarea>
+                    <button onclick="processUploadQuestion()" class="px-5 py-2.5 bg-emeraldCustom-600 hover:bg-emeraldCustom-700 text-white text-xs font-bold rounded-xl transition">
+                        Perbarui Bank Soal Ujian
+                    </button>
+                </div>
+
+                <!-- Tab 3: Pengaturan Keamanan & Kode Kunci -->
+                <div id="teacherTabSettings" class="hidden space-y-4">
+                    <h4 class="text-sm font-bold text-slate-700">Kode Buka Kunci Pengawas</h4>
+                    <p class="text-xs text-slate-500">Gunakan ID ini untuk membuka Layar Hitam ter-kunci pada layar siswa yang melanggar.</p>
+                    <div class="bg-slate-100 p-4 rounded-2xl border border-slate-200">
+                        <span class="text-xs text-slate-600">Kode Kunci Pengawas Guru: </span>
+                        <strong class="text-emerald-700 font-mono text-base ml-2">AGUNG121002</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           1. BANK 50 SOAL SEJARAH KEBUDAYAAN ISLAM (SKI) KELAS XI SEMESTER 1
+           ========================================================================== */
+        const defaultQuestions = [
+            {
+                q: "Berdirinya Daulah Abbasiyah pada tahun 132 H / 750 M merupakan tonggak sejarah penting peradaban Islam. Gerakan politik yang meruntuhkan Daulah Umayyah ini dipelopori oleh keluarga Bani Abbas dengan dukungan tokoh propagator ulung di wilayah Khurasan. Tokoh militer utama yang menjadi penggerak perlawanan rahasia tersebut adalah...",
+                o: ["A. Abu Abbas As-Saffah", "B. Abu Ja'far Al-Mansur", "C. Abu Muslim Al-Khurasani", "D. Harun Al-Rasyid", "E. Al-Ma'mun"],
+                a: 2
+            },
+            {
+                q: "Khalifah pertama Daulah Abbasiyah adalah Abu al-Abbas al-Saffah. Gelar 'As-Saffah' yang disandangnya memiliki arti penumpah darah. Alasan utama pemberian gelar tersebut dalam konteks historis pendirian Abbasiyah adalah...",
+                o: ["A. Kejelian beliau dalam memimpin perang melawan kekaisaran Romawi Timur", "B. Tindakan tegas tanpa ampun dalam menumpas sisa-sisa pengikut Daulah Umayyah", "C. Keberhasilannya menguasai wilayah India dan Asia Tengah", "D. Kebijakannya mengeksekusi para pemberontak di wilayah Baghdad", "E. Pembentukan pasukan khusus bersenjata perang dari bangsa Turki"],
+                a: 1
+            },
+            {
+                q: "Kota Baghdad didirikan oleh Khalifah Abu Ja'far Al-Mansur pada tahun 762 M sebagai ibu kota baru menggantikan Hashimiyah. Alasan geostrategis utama pemilihan Baghdad di antara Sungai Eufrat dan Tigris adalah...",
+                o: ["A. Baghdad merupakan kota tempat lahirnya nenek moyang Bani Abbas", "B. Posisinya yang sangat strategis untuk perdagangan internasional, pertahanan militer, dan pertanian yang subur", "C. Keinginan untuk mengisolasi diri dari kebudayaan Persia dan Byzantium", "D. Dekatnya lokasi Baghdad dengan pusat peradaban Islam kuno di Mekah dan Madinah", "E. Permintaan khusus dari kelompok elite militer bangsa Turki"],
+                a: 1
+            },
+            {
+                q: "Puncak keemasan (The Golden Age of Islam) Daulah Abbasiyah dicapai pada masa pemerintahan Khalifah Harun Al-Rasyid dan putranya Al-Ma'mun. Salah satu institusi legendaris yang didirikan sebagai pusat penerjemahan, penelitian, dan perpustakaan megah di Baghdad adalah...",
+                o: ["A. Madrasah Nizamiyah", "B. Bayt al-Hikmah", "C. Universitas Al-Azhar", "D. Dar al-Ulum", "E. Kuttab Al-Mansur"],
+                a: 1
+            },
+            {
+                q: "Pada periode emas Daulah Abbasiyah, terjadi proses asimilasi budaya dan ilmu pengetahuan yang pesat antara bangsa Arab dan non-Arab (Mawali). Kelompok bangsa non-Arab yang paling berpengaruh dalam birokrasi dan pemerintahan Abbasiyah periode pertama adalah...",
+                o: ["A. Bangsa Turki", "B. Bangsa Romawi", "C. Bangsa Persia", "D. Bangsa India", "E. Bangsa Berber"],
+                a: 2
+            },
+            {
+                q: "Cendekiawan Muslim serba bisa yang dikenal di dunia Barat dengan sebutan 'Avicenna' menulis mahakarya kedokteran berjudul 'Al-Qanun fi al-Tibb' yang menjadi standar medis Eropa selama berabad-abad. Tokoh tersebut adalah...",
+                o: ["A. Al-Razi", "B. Ibnu Sina", "C. Ibnu Al-Nafis", "D. Al-Zahrawi", "E. Ibnu Rushd"],
+                a: 1
+            },
+            {
+                q: "Tokoh ilmuwan matematika Muslim pada masa Abbasiyah yang meletakkan dasar-dasar ilmu Aljabar, menemukan konsep angka Nol (0), serta sistem algoritma dalam karyanya 'Al-Kitab al-Mukhtasar fi Hisab al-Jabr wa'l-Muqabala' adalah...",
+                o: ["A. Al-Khawarizmi", "B. Al-Biruni", "C. Al-Kindi", "D. Jabir bin Hayyan", "E. Thabit ibn Qurra"],
+                a: 0
+            },
+            {
+                q: "Di bidang ilmu kimia, peradaban Abbasiyah melahirkan ilmuwan legendaris yang dikenal sebagai 'Bapak Kimia Modern' (Geber di Barat). Beliau menemukan teknik laboratorium seperti distilasi, sublimasi, dan kristalisasi. Tokoh tersebut adalah...",
+                o: ["A. Al-Kindi", "B. Jabir bin Hayyan", "C. Al-Farabi", "D. Al-Baitar", "E. Ibnu Al-Haitham"],
+                a: 1
+            },
+            {
+                q: "Filsuf Muslim pertama yang berusaha menyelaraskan ajaran Islam dengan filsafat rasional Yunani, hingga dikenal dengan julukan 'Filsuf Arab' adalah...",
+                o: ["A. Al-Kindi", "B. Ibnu Rushd", "C. Al-Farabi", "D. Al-Ghazali", "E. Ibnu Tufail"],
+                a: 0
+            },
+            {
+                q: "Al-Farabi memperoleh gelar 'Al-Mu'allim al-Tsani' (Guru Kedua) dalam sejarah pemikiran filsafat. Gelar 'Guru Pertama' disandangkan kepada filsuf Yunani Kuno yaitu...",
+                o: ["A. Plato", "B. Socrates", "C. Aristoteles", "D. Pythagoras", "E. Plotinus"],
+                a: 2
+            },
+            {
+                q: "Ahli optik Muslim terkemuka yang menyusun kitab 'Kitab al-Manazir' dan membuktikan bahwa penglihatan manusia terjadi karena pantulan cahaya yang masuk ke mata (bukan sinar yang keluar dari mata) adalah...",
+                o: ["A. Ibnu Al-Haitham (Alhazen)", "B. Al-Razi", "C. Al-Zahrawi", "D. Ibnu Nafis", "E. Al-Battani"],
+                a: 0
+            },
+            {
+                q: "Dalam ilmu Fiqh, pada masa Abbasiyah berkembang 4 Mazhab Sunni terbesar. Imam pendiri mazhab yang mengorientasikan hukum berdasarkan tradisi ahli hadis Madinah dan menyusun kitab 'Al-Muwatta' adalah...",
+                o: ["A. Imam Abu Hanifah", "B. Imam Malik bin Anas", "C. Imam Muhammad bin Idris Asy-Syafi'i", "D. Imam Ahmad bin Hanbal", "E. Imam Al-Ghazali"],
+                a: 1
+            },
+            {
+                q: "Imam Syafi'i menyusun kitab risalah pertama dalam ilmu metodologi hukum Islam (Ushul Fiqh) yang sangat fenomenal. Kitab tersebut berjudul...",
+                o: ["A. Al-Umm dan Al-Risalah", "B. Al-Muwatta", "C. Al-Musnad", "D. Bidayat al-Mujtahid", "E. Ihya Ulumuddin"],
+                a: 0
+            },
+            {
+                q: "Pada bidang kodifikasi hadis, enam kitab hadis induk (Al-Kutub As-Sittah) dibukukan pada masa Abbasiyah. Penyusun kitab 'Sahih' paling otoritatif yang mensyaratkan kelangsungan sanad secara ketat adalah...",
+                o: ["A. Imam Muslim", "B. Imam Al-Bukhari", "C. Imam Abu Daud", "D. Imam At-Tirmidzi", "E. Imam An-Nasa'i"],
+                a: 1
+            },
+            {
+                q: "Cendekiawan tasawuf besar bergelar 'Hujjatul Islam' yang berhasil mengintegrasikan sufisme rasional dengan syariat Islam melalui karya monumental 'Ihya Ulumuddin' adalah...",
+                o: ["A. Al-Ghazali", "B. Al-Hallaj", "C. Ibnu Arabi", "D. Abdul Qadir Al-Jailani", "E. Rabiah Al-Adawiyah"],
+                a: 0
+            },
+            {
+                q: "Dalam bidang astronomi, astronom Muslim Al-Battani (Albatenius) membuat pencapaian mengagumkan dengan menghitung lamanya satu tahun matahari secara presisi, yaitu...",
+                o: ["A. 365 hari, 5 jam, 46 menit, 24 detik", "B. 360 hari tepat", "C. 365 hari, 6 jam, 12 menit", "D. 366 hari, 4 jam", "E. 354 hari, 8 jam"],
+                a: 0
+            },
+            {
+                q: "Perhatikan faktor-faktor berikut:\n1) Serangan invasi pasukan Mongol di bawah pimpinan Hulagu Khan.\n2) Perebutan kekuasaan antar pangeran istana.\n3) Perang Salib yang menguras kekuatan.\n4) Berdirinya dinasti-dinasti kecil yang memisahkan diri dari Baghdad.\nFaktor utama penyebab langsung (eksternal) runtuhnya Daulah Abbasiyah di Baghdad pada tahun 1258 M adalah...",
+                o: ["A. Faktor 1", "B. Faktor 2", "C. Faktor 3", "D. Faktor 4", "E. Faktor 2 dan 4"],
+                a: 0
+            },
+            {
+                q: "Panglima tentara Mongol yang melakukan pembumihancuran kota Baghdad, membakar perpustakaan Bayt al-Hikmah, dan membunuh Khalifah Al-Musta'sim pada tahun 1258 M adalah...",
+                o: ["A. Genghis Khan", "B. Kubilai Khan", "C. Hulagu Khan", "D. Timur Lenk", "E. Batu Khan"],
+                a: 2
+            },
+            {
+                q: "Dominasi tentara asing dalam pemerintahan Abbasiyah periode kedua diwarnai oleh kelompok tentara budak asal Turki yang kemudian mengambil alih kekuasaan politik. Kelompok ini dikenal sebagai...",
+                o: ["A. Mamalik (Mamluk)", "B. Janissari", "C. Assasin", "D. Safawiyah", "E. Ghazawiyah"],
+                a: 0
+            },
+            {
+                q: "Perdana Menteri ternama Daulah Seljuk pada masa Abbasiyah yang mendirikan institusi pendidikan perguruan tinggi 'Madrasah Nizamiyah' untuk memperkuat ajaran Sunni adalah...",
+                o: ["A. Nizam al-Mulk", "B. Alp Arslan", "C. Malik Syah", "D. Badr al-Jamali", "E. Kafur al-Ikhsyidi"],
+                a: 0
+            },
+            {
+                q: "Geografer Muslim ulung pada masa Abbasiyah yang berhasil membuat peta bola dunia secara komprehensif dan menyusun kitab 'Nuzhat al-Mushtaq fi Ikhtiraq al-Afaq' adalah...",
+                o: ["A. Al-Idrisi", "B. Ibnu Battuta", "C. Al-Mas'udi", "D. Yaqut al-Hamawi", "E. Al-Biruni"],
+                a: 0
+            },
+            {
+                q: "Bapak Sosiologi dan Filsafat Sejarah Islam yang menyusun kitab monumental 'Muqaddimah' untuk menjelaskan hukum peradaban dan teori Asabiyah adalah...",
+                o: ["A. Ibnu Khaldun", "B. Al-Tabari", "C. Ibnu Al-Athir", "D. Al-Mas'udi", "E. Ibnu Katsir"],
+                a: 0
+            },
+            {
+                q: "Ibu kota Daulah Abbasiyah sempat dipindahkan selama beberapa dekade dari Baghdad ke kota baru yang dibangun oleh Khalifah Al-Mu'tasim untuk menampung tentara Turki. Kota tersebut adalah...",
+                o: ["A. Samarra", "B. Kufah", "C. Basrah", "D. Damaskus", "E. Nishapur"],
+                a: 0
+            },
+            {
+                q: "Sistem struktur organisasi pemerintahan Abbasiyah menempatkan pejabat tinggi yang bertindak sebagai Perdana Menteri untuk mengawasi departemen kementerian. Jabatan tersebut bergelar...",
+                o: ["A. Wazir", "B. Amir al-Umara", "C. Qadi al-Qudah", "D. Katib", "E. Muhtasib"],
+                a: 0
+            },
+            {
+                q: "Ketua Lembaga Kehakiman Tertinggi atau Hakim Agung pada masa Daulah Abbasiyah disebuta dengan istilah...",
+                o: ["A. Qadi al-Qudah", "B. Al-Muhtasib", "C. Diwan al-Mazalim", "D. Amirul Mukminin", "E. Wali al-Ahad"],
+                a: 0
+            },
+            {
+                q: "Arsitektur Masjid Agung Samarra di Irak sangat ikonik dengan menara azan spiral berarsitektur luar biasa bernama...",
+                o: ["A. Menara Malwiya", "B. Menara Qutub Minar", "C. Menara Giralda", "D. Menara Alhambra", "E. Menara Al-Azhar"],
+                a: 0
+            },
+            {
+                q: "Karya sastra legendaris yang lahir pada era keemasan Baghdad dan memuat kisah-kisah imajinatif seperti Aladin dan Sinbad adalah...",
+                o: ["A. 1001 Malam (Alf Lailah wa Lailah)", "B. Kalilah wa Dimnah", "C. Rubaiyat Omar Khayyam", "D. Shahnameh", "E. Hayy ibn Yaqzan"],
+                a: 0
+            },
+            {
+                q: "Aliran teologi resmi yang mengedepankan rasionalisme (kebebasan akal) dan dijadikan dogma negara pada masa Khalifah Al-Ma'mun adalah aliran...",
+                o: ["A. Mu'tazilah", "B. Ash'ariyah", "C. Jabariyah", "D. Maturidiyah", "E. Khawarij"],
+                a: 0
+            },
+            {
+                q: "Peristiwa pengujian akidah dan doktrin ke-makhluk-an Al-Qur'an secara paksa terhadap ulama pada masa Khalifah Al-Ma'mun dikenal dalam sejarah sebagai peristiwa...",
+                o: ["A. Mihnah", "B. Fitnatul Kubra", "C. Perang Siffin", "D. Tahkim", "E. Amul Jama'ah"],
+                a: 0
+            },
+            {
+                q: "Tokoh utama pendiri aliran Asy'ariyah yang memulihkan teologi Ahlus Sunnah wal Jama'ah dari dominasi paham Mu'tazilah radikal adalah...",
+                o: ["A. Abu al-Hasan Al-Asy'ari", "B. Wasil bin Ata", "C. Al-Jubba'i", "D. Ahmad bin Hanbal", "E. Jahm bin Safwan"],
+                a: 0
+            },
+            {
+                q: "Mazhab Fiqh tertua Sunni yang didirikan oleh Imam Abu Hanifah di Kufah sangat menonjolkan penggunaan logika analogi hukum yang disebut...",
+                o: ["A. Qiyas dan Ra'yu", "B. Urf dan Maslahah", "C. Istihsan dan Ijma", "D. Sunnah Madinah", "E. Saddu al-Dzarai"],
+                a: 0
+            },
+            {
+                q: "Lembaga pengawas pasar, ketertiban moral publik, dan standar timbangan barang dagangan pada masa peradaban Abbasiyah dipimpin oleh seorang...",
+                o: ["A. Muhtasib", "B. Syurtah", "C. Hajib", "D. Katib", "E. Amir"],
+                a: 0
+            },
+            {
+                q: "Kedokteran Islam Abbasiyah mencatat nama Al-Razi (Rhazes) yang menjadi ilmuwan pertama yang berhasil mengidentifikasi dan membedakan secara klinis antara dua penyakit menular...",
+                o: ["A. Cacar (Smallpox) dan Campak (Measles)", "B. Polio dan Kolera", "C. TBC dan Pes", "D. Malaria dan Dengue", "E. Lepra dan Diabetes"],
+                a: 0
+            },
+            {
+                q: "Cendekiawan Muslim ensiklopedis yang menguasai ilmu astronomi, sejarah, dan bahasa Sansekerta serta menulis buku kajian budaya India 'Kitab al-Hind' adalah...",
+                o: ["A. Al-Biruni", "B. Al-Mas'udi", "C. Ibnu Battuta", "D. Al-Kindi", "E. Al-Farghani"],
+                a: 0
+            },
+            {
+                q: "Tiga Kerajaan Besar Islam (Three Great Empires) yang bangkit pada periode pasca-keruntuhan Baghdad meliputi Daulah Utsmaniyah (Turki), Daulah Safawiyah (Persia), dan Daulah...",
+                o: ["A. Mughal (India)", "B. Ayyubiyah (Mesir)", "C. Fatimiyah (Afrika Utara)", "D. Seljuk (Baghdad)", "E. Umayyah II (Andalusia)"],
+                a: 0
+            },
+            {
+                q: "Daulah Utsmaniyah (Ottoman Empire) didirikan oleh Osman I pada awal abad ke-14 di wilayah...",
+                o: ["A. Asia Kecil (Anatolia / Turki)", "B. Jazirah Arab", "C. Lembah Sungai Indus", "D. Pegunungan Kaukasus", "E. Wilayah Maghribi"],
+                a: 0
+            },
+            {
+                q: "Penaklukan benteng Konstantinopel pada tahun 1453 M yang mengakhiri Kekaisaran Bizantium dipimpin oleh Sultan Utsmaniyah muda yang bergelar...",
+                o: ["A. Sultan Muhammad Al-Fatih (Mehmed II)", "B. Sultan Sulaiman Al-Qanuni", "C. Sultan Selim I", "D. Sultan Bayazid II", "E. Sultan Murad II"],
+                a: 0
+            },
+            {
+                q: "Pasukan tempur elit infanteri Daulah Utsmaniyah yang dididik secara ketat sejak kecil dari pemuda pemuda devshirme dinamakan...",
+                o: ["A. Janissari (Yeni Ceri)", "B. Sipahi", "C. Mamluk", "D. Qizilbash", "E. Ghazi"],
+                a: 0
+            },
+            {
+                q: "Sultan Utsmaniyah yang menjabat pada puncak kejayaan dan mendapat julukan 'Al-Qanuni' karena keberhasilannya menyusun kodifikasi hukum negara adalah...",
+                o: ["A. Sultan Sulaiman I", "B. Sultan Selim I", "C. Sultan Murad IV", "D. Sultan Abdul Hamid II", "E. Sultan Bayazid I"],
+                a: 0
+            },
+            {
+                q: "Daulah Safawiyah di Persia (Iran) secara resmi menjadikan paham keagamaan tertentu sebagai mazhab resmi kerajaan. Paham tersebut adalah...",
+                o: ["A. Syiah Duwazdah Imami (12 Imam)", "B. Sunni Syafi'i", "C. Sunni Hanafi", "D. Mu'tazilah", "E. Ibadiyah"],
+                a: 0
+            },
+            {
+                q: "Penguasa terbesar Daulah Safawiyah yang berhasil memindahkan ibu kota ke Isfahan dan memperindah kota tersebut hingga dijuluki 'Setengah Dunia' (Nisf-e-Jahan) adalah...",
+                o: ["A. Shah Abbas I", "B. Shah Ismail I", "C. Shah Tahmasp", "D. Shah Safi", "E. Shah Sultan Husayn"],
+                a: 0
+            },
+            {
+                q: "Daulah Mughal di India didirikan pada tahun 1526 M setelah keberhasilan Pertempuran Panipat I oleh tokoh keturunan Timur Lenk yaitu...",
+                o: ["A. Zahiruddin Muhammad Babur", "B. Jalaluddin Muhammad Akbar", "C. Shah Jahan", "D. Aurangzeb", "E. Humayun"],
+                a: 0
+            },
+            {
+                q: "Monumen megah dari marmer putih yang dibangun oleh Sultan Mughal Shah Jahan di kota Agra sebagai bentuk rasa cinta untuk permaisurinya Mumtaz Mahal adalah...",
+                o: ["A. Taj Mahal", "B. Benteng Merah (Red Fort)", "C. Masjid Jama Delhi", "D. Qutub Minar", "E. Shalimar Bagh"],
+                a: 0
+            },
+            {
+                q: "Raja Mughal yang menerapkan konsep kerukunan keagamaan 'Sulh-i-Kul' (Kedamaian Universal) dan menciptakan sinkretisme 'Din-i-Ilahi' adalah...",
+                o: ["A. Sultan Akbar", "B. Sultan Babur", "C. Sultan Shah Jahan", "D. Sultan Aurangzeb", "E. Sultan Jahangir"],
+                a: 0
+            },
+            {
+                q: "Penguasa Daulah Mughal yang sangat taat beragama, menyusun kodifikasi hukum Islam 'Fatawa Alamgiri', serta mengembalikan pajak Jizyah adalah...",
+                o: ["A. Aurangzeb (Alamgir I)", "B. Akbar", "C. Jahangir", "D. Shah Alam", "E. Humayun"],
+                a: 0
+            },
+            {
+                q: "Institusi 'Baitul Maal' dalam sistem tata negara peradaban Islam memiliki fungsi mendasar yaitu sebagai...",
+                o: ["A. Lembaga kas perbendaharaan negara dan pengelola keuangan publik", "B. Lembaga kehakiman dan pengadilan tinggi", "C. Pusat latihan militer kerajaan", "D. Perpustakaan riset keilmuan", "E. Asrama penginapan para ulama"],
+                a: 0
+            },
+            {
+                q: "Peninggalan seni arsitektur megah Islam di wilayah Eropa (Andalusia / Spanyol) yang terkenal dengan tiang-tiang lengkung merah-putihnya adalah...",
+                o: ["A. Masjid Agung Cordoba (Mezquita)", "B. Istana Topkapi", "C. Blue Mosque", "D. Taj Mahal", "E. Hagia Sophia"],
+                a: 0
+            },
+            {
+                q: "Perintis utama penggunaan Metode Ilmiah Eksperimental (Experimental Method) dalam sains yang menginspirasi kebangkitan Renaisans Eropa berasal dari tradisi ilmuwan Muslim seperti...",
+                o: ["A. Ibnu Al-Haitham dan Al-Biruni", "B. Al-Ghazali dan Asy-Syafi'i", "C. Harun Al-Rasyid dan Al-Mansur", "D. Hulagu Khan dan Genghis Khan", "E. Nizam al-Mulk"],
+                a: 0
+            },
+            {
+                q: "Pemberontakan dan munculnya dinasti-dinasti otonom yang memisahkan diri dari kontrol pusat Baghdad (seperti Thahiriyah, Tuluniyah, Saffariyah) menunjukkan gejala...",
+                o: ["A. Disintegrasi politik internal dan melemahnya kekuasaan pusat kedaulatan khalifah", "B. Keberhasilan ekspansi wilayah", "C. Kemajuan sistem demokrasi daerah", "D. Konsolidasi militer kaisar", "E. Pembagian zakat yang adil"],
+                a: 0
+            },
+            {
+                q: "Hikmah utama yang dapat dipetik oleh generasi muda Muslim modern dari sejarah pasang surut Peradaban Islam Daulah Abbasiyah adalah...",
+                o: ["A. Penguasaan ilmu pengetahuan, persatuan umat, serta menghindari kemewahan yang meninabukukan", "B. Mengutamakan peperangan daripada pembangunan sains", "C. Menolak semua kontribusi peradaban bangsa non-Muslim", "D. Membatasi pendidikan hanya pada urusan ibadah ritual", "E. Menggantungkan pertahanan negara pada tentara asing"],
+                a: 0
+            }
+        ];
+
+        /* ==========================================================================
+           2. STATE & VARIABEL APLIKASI
+           ========================================================================== */
+        let currentQuestions = [...defaultQuestions];
+        let userAnswers = new Array(50).fill(null);
+        let doubtStates = new Array(50).fill(false);
+        let currentQIndex = 0;
+        let timerInterval = null;
+        let timeLeft = 90 * 60; // 90 Menit
+        let violationCount = 0;
+        let examActive = false;
+        let studentData = {};
+
+        const TEACHER_ID_CORRECT = "AGUNG121002";
+
+        /* ==========================================================================
+           3. LOGIK NAVIGASI & UJIAN SISWA
+           ========================================================================== */
+        function validateAndStart() {
+            const name = document.getElementById('studentName').value.trim();
+            const sClass = document.getElementById('studentClass').value;
+            const examNo = document.getElementById('studentExamNo').value.trim();
+            const agree = document.getElementById('agreeRules').checked;
+
+            if (!name || !sClass || !examNo) {
+                alert("Harap lengkapi Formulir Identitas Siswa secara lengkap!");
+                return;
+            }
+            if (!agree) {
+                alert("Anda wajib centang menyetujui Tata Tertib Ujian!");
+                return;
+            }
+
+            studentData = { name, class: sClass, examNo };
+
+            // Fullscreen Request
+            requestFullScreen();
+
+            // Switch Screen
+            document.getElementById('portalSection').classList.add('hidden');
+            document.getElementById('examSection').classList.remove('hidden');
+
+            document.getElementById('dispStudentInfo').innerText = `${name} (${sClass})`;
+            document.getElementById('dispExamNo').innerText = `No. Ujian: ${examNo}`;
+
+            examActive = true;
+            initQuestionGrid();
+            renderQuestion(0);
+            startTimer();
+            setupSecurityListeners();
+        }
+
+        function requestFullScreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+        function initQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < currentQuestions.length; i++) {
+                const btn = document.createElement('button');
+                btn.id = `qGridBtn_${i}`;
+                btn.className = "h-9 w-full rounded-xl font-bold text-xs border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition";
+                btn.innerText = i + 1;
+                btn.onclick = () => renderQuestion(i);
+                grid.appendChild(btn);
+            }
+            updateGridStatus();
+        }
+
+        function renderQuestion(index) {
+            currentQIndex = index;
+            document.getElementById('currentQuestionNum').innerText = index + 1;
+            
+            const qData = currentQuestions[index];
+            document.getElementById('questionText').innerText = qData.q;
+
+            const optsContainer = document.getElementById('optionsContainer');
+            optsContainer.innerHTML = '';
+
+            qData.o.forEach((optText, optIdx) => {
+                const isSelected = userAnswers[index] === optIdx;
+                const optBox = document.createElement('div');
+                optBox.className = `p-4 border-2 rounded-2xl cursor-pointer transition flex items-center gap-3.5 text-xs md:text-sm ${
+                    isSelected 
+                        ? 'border-emerald-600 bg-emerald-50 text-emerald-900 font-bold shadow-sm' 
+                        : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
+                }`;
+                optBox.onclick = () => selectOption(optIdx);
+
+                const radioCircle = document.createElement('div');
+                radioCircle.className = `w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
+                    isSelected ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300'
+                }`;
+                if (isSelected) {
+                    radioCircle.innerHTML = '<i class="fa-solid fa-check text-[10px]"></i>';
+                }
+
+                const label = document.createElement('span');
+                label.innerText = optText;
+
+                optBox.appendChild(radioCircle);
+                optBox.appendChild(label);
+                optsContainer.appendChild(optBox);
+            });
+
+            // Update State Tombol Ragu & Navigasi
+            document.getElementById('btnPrev').disabled = (index === 0);
+            document.getElementById('btnPrev').classList.toggle('opacity-50', index === 0);
+
+            const isDoubt = doubtStates[index];
+            document.getElementById('doubtBtnText').innerText = isDoubt ? "Batal Ragu" : "Ragu-Ragu";
+            document.getElementById('btnDoubt').classList.toggle('bg-amber-300', isDoubt);
+
+            const isLast = (index === currentQuestions.length - 1);
+            document.getElementById('btnNext').innerHTML = isLast ? 'Selesai <i class="fa-solid fa-flag-checkered"></i>' : 'Selanjutnya <i class="fa-solid fa-arrow-right"></i>';
+            
+            updateGridStatus();
+        }
+
+        function selectOption(optIdx) {
+            userAnswers[currentQIndex] = optIdx;
+            renderQuestion(currentQIndex);
+        }
+
+        function toggleDoubt() {
+            doubtStates[currentQIndex] = !doubtStates[currentQIndex];
+            renderQuestion(currentQIndex);
+        }
+
+        function navigateQuestion(direction) {
+            let target = currentQIndex + direction;
+            if (target >= 0 && target < currentQuestions.length) {
+                renderQuestion(target);
+            } else if (target >= currentQuestions.length) {
+                confirmSubmitExam();
+            }
+        }
+
+        function updateGridStatus() {
+            let answered = 0;
+            userAnswers.forEach((ans, idx) => {
+                const btn = document.getElementById(`qGridBtn_${idx}`);
+                if (btn) {
+                    btn.className = "h-9 w-full rounded-xl font-bold text-xs flex items-center justify-center transition border ";
+                    if (doubtStates[idx]) {
+                        btn.classList.add("bg-amber-400", "text-amber-950", "border-amber-500", "shadow-sm");
+                    } else if (ans !== null) {
+                        answered++;
+                        btn.classList.add("bg-emerald-600", "text-white", "border-emerald-700", "shadow-sm");
+                    } else {
+                        btn.classList.add("bg-slate-100", "text-slate-700", "border-slate-300", "hover:bg-slate-200");
+                    }
+
+                    if (idx === currentQIndex) {
+                        btn.classList.add('ring-2', 'ring-amber-500', 'ring-offset-1');
+                    }
+                }
+            });
+
+            document.getElementById('answeredCountText').innerText = `${answered}/${currentQuestions.length} Terjawab`;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                document.getElementById('timerDisplay').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Waktu Ulangan Telah Habis!");
+                    calculateAndFinish();
+                }
+            }, 1000);
+        }
+
+        function confirmSubmitExam() {
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            const unAnswered = currentQuestions.length - answeredCount;
+            let msg = `Apakah Anda yakin ingin mengumpulkan lembar jawaban ujian?`;
+            if (unAnswered > 0) {
+                msg += `\nMasih ada ${unAnswered} nomor soal yang BELUM dijawab.`;
+            }
+            if (confirm(msg)) {
+                calculateAndFinish();
+            }
+        }
+
+        function calculateAndFinish() {
+            examActive = false;
+            clearInterval(timerInterval);
+
+            let scoreCount = 0;
+            currentQuestions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.a) {
+                    scoreCount++;
+                }
+            });
+
+            const finalGrade = Math.round((scoreCount / currentQuestions.length) * 100);
+
+            // Display Results
+            document.getElementById('examSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+
+            document.getElementById('finalScore').innerText = finalGrade;
+            document.getElementById('scoreDetail').innerText = `Jawaban Benar: ${scoreCount} / ${currentQuestions.length} Soal`;
+
+            document.getElementById('resName').innerText = studentData.name;
+            document.getElementById('resClass').innerText = studentData.class;
+            document.getElementById('resExamNo').innerText = studentData.examNo;
+            document.getElementById('resViolations').innerText = violationCount;
+            document.getElementById('resTime').innerText = new Date().toLocaleString('id-ID');
+
+            // Save Result to LocalStorage
+            saveResultToStorage({
+                name: studentData.name,
+                class: studentData.class,
+                examNo: studentData.examNo,
+                score: finalGrade,
+                correct: scoreCount,
+                violations: violationCount,
+                time: new Date().toLocaleString('id-ID')
+            });
+        }
+
+        function saveResultToStorage(resultObj) {
+            let existing = JSON.parse(localStorage.getItem('ski_exam_results') || '[]');
+            existing.push(resultObj);
+            localStorage.setItem('ski_exam_results', JSON.stringify(existing));
+        }
+
+        /* ==========================================================================
+           4. SISTEM KEAMANAN KETAT & LAYAR HITAM PENUH (ANTI-CHEATING)
+           ========================================================================== */
+        function triggerBlackScreen(reason) {
+            if (!examActive) return;
+
+            violationCount++;
+            document.getElementById('violationCountDisplay').innerText = violationCount;
+
+            document.getElementById('blackScreenReason').innerText = `Pelanggaran Terdeteksi: ${reason}`;
+            document.getElementById('blackScreenOverlay').classList.remove('hidden');
+            document.getElementById('blackScreenOverlay').classList.add('flex');
+        }
+
+        function setupSecurityListeners() {
+            // 1. Visibility Change & Blur (Pindah Tab/Window)
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && examActive) {
+                    triggerBlackScreen("Pindah Tab / Berpindah Aplikasi Terdeteksi!");
+                }
+            });
+
+            window.addEventListener('blur', () => {
+                if (examActive) {
+                    triggerBlackScreen("Fokus Jendela Layar Hilang Terdeteksi!");
+                }
+            });
+
+            // 2. Prevent Copy/Paste/Cut/Context Menu
+            document.addEventListener('copy', (e) => { e.preventDefault(); triggerBlackScreen("Percobaan Menyalin (Copy) Teks Terdeteksi!"); });
+            document.addEventListener('cut', (e) => { e.preventDefault(); triggerBlackScreen("Percobaan Cut Teks Terdeteksi!"); });
+            document.addEventListener('paste', (e) => { e.preventDefault(); });
+
+            // 3. Prevent PrintScreen & Screenshot Shortcuts
+            document.addEventListener('keyup', (e) => {
+                if (examActive && e.key === 'PrintScreen') {
+                    navigator.clipboard.writeText('');
+                    triggerBlackScreen("Tangkap Layar (Screenshot / PrintScreen) Terdeteksi!");
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (!examActive) return;
+                // Shortcut screenshot (Win+Shift+S / Cmd+Shift+4 / F12 / Ctrl+U)
+                if ((e.shiftKey && e.metaKey && (e.key === '4' || e.key === 's')) ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
+                    (e.key === 'F12') ||
+                    (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 'p' || e.key === 'P'))) {
+                    e.preventDefault();
+                    triggerBlackScreen("Penggunaan Tombol Kombinasi / Tangkap Layar Terdeteksi!");
+                }
+            });
+
+            // 4. Resize / Split Screen Check
+            window.addEventListener('resize', () => {
+                if (examActive) {
+                    const threshold = 120;
+                    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+                        triggerBlackScreen("Perubahan Ukuran Jendela / Belah Layar (Split Screen) Terdeteksi!");
+                    }
+                }
+            });
+        }
+
+        function attemptResetViolations() {
+            const code = prompt("Masukkan Kode Buka Kunci Pengawas (Guru):");
+            if (code === TEACHER_ID_CORRECT) {
+                document.getElementById('blackScreenOverlay').classList.add('hidden');
+                document.getElementById('blackScreenOverlay').classList.remove('flex');
+                requestFullScreen();
+                alert("Layar Hitam Terbuka Kembali. Silakan lanjutkan ujian secara tertib.");
+            } else if (code !== null) {
+                alert("Kode Akses Guru Salah!");
+            }
+        }
+
+        /* ==========================================================================
+           5. DASBOR GURU (ID: AGUNG121002) & EXPORT REKAP CSV
+           ========================================================================== */
+        function openTeacherModal() {
+            document.getElementById('teacherModal').classList.remove('hidden');
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('teacherModal').classList.add('hidden');
+        }
+
+        function authTeacher() {
+            const input = document.getElementById('teacherIdInput').value.trim();
+            if (input === TEACHER_ID_CORRECT) {
+                document.getElementById('teacherLoginView').classList.add('hidden');
+                document.getElementById('teacherAdminView').classList.remove('hidden');
+                loadRekapTable();
+            } else {
+                alert("ID Guru Tidak Valid!");
+            }
+        }
+
+        function switchTeacherTab(tabName) {
+            document.getElementById('teacherTabRekap').classList.add('hidden');
+            document.getElementById('teacherTabUpload').classList.add('hidden');
+            document.getElementById('teacherTabSettings').classList.add('hidden');
+
+            document.getElementById('tabBtnRekap').className = "px-4 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700";
+            document.getElementById('tabBtnUpload').className = "px-4 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700";
+            document.getElementById('tabBtnSettings').className = "px-4 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700";
+
+            if (tabName === 'rekap') {
+                document.getElementById('teacherTabRekap').classList.remove('hidden');
+                document.getElementById('tabBtnRekap').className = "px-4 py-2.5 border-b-2 border-emerald-600 text-emerald-600 font-bold";
+                loadRekapTable();
+            } else if (tabName === 'upload') {
+                document.getElementById('teacherTabUpload').classList.remove('hidden');
+                document.getElementById('tabBtnUpload').className = "px-4 py-2.5 border-b-2 border-emerald-600 text-emerald-600 font-bold";
+            } else if (tabName === 'settings') {
+                document.getElementById('teacherTabSettings').classList.remove('hidden');
+                document.getElementById('tabBtnSettings').className = "px-4 py-2.5 border-b-2 border-emerald-600 text-emerald-600 font-bold";
+            }
+        }
+
+        function loadRekapTable() {
+            const tbody = document.getElementById('rekapTableBody');
+            tbody.innerHTML = '';
+            const results = JSON.parse(localStorage.getItem('ski_exam_results') || '[]');
+
+            if (results.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Belum ada data ujian tersimpan.</td></tr>`;
+                return;
+            }
+
+            results.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-medium">${index + 1}</td>
+                    <td class="p-3 font-bold text-slate-800">${item.name}</td>
+                    <td class="p-3">${item.class}</td>
+                    <td class="p-3 font-mono text-slate-500">${item.examNo}</td>
+                    <td class="p-3 font-bold text-emerald-600">${item.score}</td>
+                    <td class="p-3 font-bold ${item.violations > 0 ? 'text-red-600' : 'text-slate-600'}">${item.violations || 0}</td>
+                    <td class="p-3 text-slate-400 text-[11px]">${item.time}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearStudentResults() {
+            if (confirm("Apakah Anda yakin ingin menghapus SELURUH data rekap nilai siswa?")) {
+                localStorage.removeItem('ski_exam_results');
+                loadRekapTable();
+            }
+        }
+
+        function processUploadQuestion() {
+            const raw = document.getElementById('jsonUploadInput').value.trim();
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    currentQuestions = parsed;
+                    userAnswers = new Array(currentQuestions.length).fill(null);
+                    doubtStates = new Array(currentQuestions.length).fill(false);
+                    alert(`Berhasil memperbarui bank soal! Total soal baru: ${currentQuestions.length}`);
+                } else {
+                    alert("Format JSON tidak valid atau array soal kosong.");
+                }
+            } catch (err) {
+                alert("Gagal membaca JSON! Pastikan struktur valid.\nError: " + err.message);
+            }
+        }
+
+        function exportToCSV() {
+            const results = JSON.parse(localStorage.getItem('ski_exam_results') || '[]');
+            if (results.length === 0) {
+                alert("Tidak ada data untuk di-export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,No,Nama Siswa,Kelas,No Ujian,Nilai,Pelanggaran,Waktu Selesai\n";
+            results.forEach((item, index) => {
+                csvContent += `${index + 1},"${item.name}","${item.class}","${item.examNo}",${item.score},${item.violations || 0},"${item.time}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rekap_Nilai_SKI_Kelas_XI_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
